@@ -1,0 +1,266 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<main class="auth layout">
+
+  {% if page == 'login' %}
+  <div class="container">
+    <div class="layout__box">
+        <div class="layout__boxHeader">
+            <div class="layout__boxTitle">
+                <h3>Login to DocTech Community</h3>
+            </div>
+        </div>
+        <div class="layout__body">
+            <h2 class="auth__tagline">Join our community for expert PC support</h2>
+
+            <!-- Form with CSRF protection -->
+            <form class="form" action="" method="POST">
+                {% csrf_token %}
+                
+                <!-- Display form errors at the top if any -->
+                {% if form.errors %}
+                <div class="form__errors">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li class="error-message">{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li class="error-message">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <!-- Email Input -->
+                <div class="form__group">
+                    <label for="username">Email</label>
+                    <input id="username" name="email" type="email" placeholder="e.g. youremail@email.com" required />
+                </div>
+
+                <!-- Password Input with Toggle Visibility -->
+                <div class="form__group">
+                    <label for="password">Password</label>
+                    <div class="password-toggle">
+                        <input id="password" name="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required />
+                        <button type="button" id="togglePassword" class="toggle-password-btn">
+                            Show
+                        </button>
+                    </div>
+                </div>
+                <div class="form__group">
+                  <a href="{% url 'password_reset' %}" class="auth__reset-link">Forgot your password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="btn btn--main" type="submit">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <title>lock</title>
+                        <path
+                            d="M27 12h-1v-2c0-5.514-4.486-10-10-10s-10 4.486-10 10v2h-1c-0.553 0-1 0.447-1 1v18c0 0.553 0.447 1 1 1h22c0.553 0 1-0.447 1-1v-18c0-0.553-0.447-1-1-1zM8 10c0-4.411 3.589-8 8-8s8 3.589 8 8v2h-16v-2zM26 30h-20v-16h20v16z">
+                        </path>
+                        <path
+                            d="M15 21.694v4.306h2v-4.306c0.587-0.348 1-0.961 1-1.694 0-1.105-0.895-2-2-2s-2 0.895-2 2c0 0.732 0.413 1.345 1 1.694z">
+                        </path>
+                    </svg>
+                    Login
+                </button>
+            </form>
+
+            <!-- Redirect to Signup -->
+            <div class="auth__action">
+                <p>New to DocTech Community?</p>
+                <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript to toggle password visibility
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // Toggle the type attribute between 'password' and 'text'
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+
+        // Toggle the button text between 'Show' and 'Hide'
+        this.textContent = this.textContent === 'Show' ? 'Hide' : 'Show';
+    });
+</script>
+<style>
+/* Error Message Styling */
+.error-message {
+    color: red;
+    font-weight: bold;
+}
+
+/* Styling for form errors box */
+.form__errors {
+    border: 1px solid red;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #ffe6e6;
+}
+
+/* Styling for password toggle button */
+.password-toggle {
+    position: relative;
+    display: flex;
+}
+
+.password-toggle input {
+    width: 100%;
+    padding-right: 60px;
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    bottom: 0;
+    height: 100%;
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.toggle-password-btn:focus {
+    outline: none;
+}
+</style>
+
+  {% else %}
+  <div class="container">
+    <div class="layout__box">
+      <div class="layout__boxHeader">
+        <div class="layout__boxTitle">
+          <h3>Create Your DocTech Community Account</h3>
+        </div>
+      </div>
+      <div class="layout__body">
+        <h2 class="auth__tagline">Join our community for expert PC support</h2>
+  
+        <form class="form" action="" method="POST">
+          {% csrf_token %}
+  
+          <!-- Non-field form errors (like password mismatch or similar errors) -->
+          {% if form.non_field_errors %}
+            <div class="form__error">
+              <ul class="errorlist">
+                {% for error in form.non_field_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+  
+          <!-- Loop over form fields and display field-specific errors -->
+          {% for field in form %}
+          <div class="form__group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  
+            <!-- Special handling for password and password confirmation fields -->
+            {% if field.name == 'password1' or field.name == 'password2' %}
+              <div class="password-group">
+                {{ field }}
+                <span class="toggle-password" onclick="togglePasswordVisibility('{{ field.id_for_label }}')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5C21.3 7.6 17 4.5 12 4.5zm0 13c-3.3 0-6.2-2.1-7.5-5 1.3-2.9 4.2-5 7.5-5s6.2 2.1 7.5 5c-1.3 2.9-4.2 5-7.5 5zm0-9c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"></path>
+                  </svg>
+                </span>
+              </div>
+            {% else %}
+              {{ field }}
+            {% endif %}
+  
+            <!-- Field errors -->
+            {% if field.errors %}
+            <ul class="errorlist">
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          {% endfor %}
+  
+          <button class="btn btn--main" type="submit">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <title>lock</title>
+              <path
+                d="M27 12h-1v-2c0-5.514-4.486-10-10-10s-10 4.486-10 10v2h-1c-0.553 0-1 0.447-1 1v18c0 0.553 0.447 1 1 1h22c0.553 0 1-0.447 1-1v-18c0-0.553-0.447-1-1-1zM8 10c0-4.411 3.589-8 8-8s8 3.589 8 8v2h-16v-2zM26 30h-20v-16h20v16z">
+              </path>
+              <path
+                d="M15 21.694v4.306h2v-4.306c0.587-0.348 1-0.961 1-1.694 0-1.105-0.895-2-2-2s-2 0.895-2 2c0 0.732 0.413 1.345 1 1.694z">
+              </path>
+            </svg>
+            Register
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- JavaScript to toggle password visibility -->
+  <script>
+  function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (field.type === "password") {
+      field.type = "text";
+    } else {
+      field.type = "password";
+    }
+  }
+  </script>
+  
+  <!-- CSS to style errors and password visibility toggle -->
+  <style>
+    .errorlist {
+      color: red; /* Display errors in red */
+      list-style-type: none;
+      padding-left: 0;
+    }
+  
+    .form__error {
+      margin-bottom: 15px;
+      color: red; /* Ensure non-field errors are also red */
+    }
+  
+    .password-group {
+      position: relative;
+    }
+  
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 30%;
+      cursor: pointer;
+    }
+  
+    .toggle-password svg {
+      fill: #666; /* Customize this color as needed */
+    }
+  
+    .toggle-password:hover svg {
+      fill: #000; /* Color on hover */
+    }
+  </style>
+  
+
+        <div class="auth__action">
+          <p>Already have an account?</p>
+          <a href="{% url 'login' %}" class="btn btn--link">Log In</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</main>
+{% endblock content %}

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activate Your DocTech Community Account</title>
+</head>
+<body>
+    <p>Hi {{ user.username }},</p>
+    <p>Thank you for registering at DocTech. Please click on the link below to activate your account:</p>
+    <p><a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}">Activate your account</a></p>
+    <p>If you did not create an account, please ignore this email.</p>
+    <p>Best regards,<br>DocTech Team</p>
+</body>
+</html>
