@@ -155,16 +155,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/images/'
-
-if not DEBUG:    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+if not DEBUG:  # Production settings
+    
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
- 
-STATICFILES_DIRS = [  # Additional locations for static files
+STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+MEDIA_ROOT = BASE_DIR / 'static/images'
+
 
 # Or, if you're using pathlib, you can do:
 # STATICFILES_DIRS = [
@@ -181,7 +180,6 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 # Ensure you handle the case where any of the variables might be missing
 if not all([EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD]):
     raise ValueError("Please set all email-related environment variables.")
-MEDIA_ROOT = BASE_DIR / 'static/images'
 
 # STATIC_ROOT =
 
