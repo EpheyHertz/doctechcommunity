@@ -23,7 +23,7 @@
             <div class="header__user">
                 <a href="{% url 'update-user' %}">
                     <div class="avatar avatar--medium active">
-                        <img src="{{ request.user.avatar.url }}" alt="{{ request.user.username }}'s avatar" />
+                        <img src="{{ request.user.avatar_url }}" alt="{{ request.user.username }}'s avatar" />
                     </div>
                     <p>{{ request.user.username }} <span>@{{ request.user.username }}</span></p>
                 </a>

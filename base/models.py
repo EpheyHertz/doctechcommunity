@@ -27,7 +27,13 @@ class User(AbstractUser):
     name = models.CharField(max_length=200, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True)
-    avatar = models.ImageField(null=True, default="avatar.svg")
+    avatar=models.ImageField(null=True)
+    
+    avatar_url = models.URLField(
+        null=True,
+        max_length=1000,
+        default='https://f004.backblazeb2.com/b2api/v1/b2_download_file_by_id?fileId=4_zb2b6343f2ed711629a2d0415_f106c769b544871d7_d20241010_m094226_c004_v0402013_t0018_u01728553346146'
+    )
 
     # Specify the custom user manager
     objects = CustomUserManager()
@@ -37,8 +43,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.email  # or self.name if you prefer to display the name
-
+        return self.email
 
 
 class Topic(models.Model):

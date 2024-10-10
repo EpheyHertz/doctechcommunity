@@ -19,7 +19,24 @@
       </div>
       <div class="layout__body">
         <form class="form" action="" method="POST" enctype="multipart/form-data">
+          {% if user.avatar_url %}
+            <div class="form__group">
+                <label>Current Avatar</label>
+                <img src="{{ user.avatar_url }}" alt="Current Avatar" class="avatar-img">
+            </div>
+          {% endif %}
+            <style>
+              .avatar-img {
+                width: 50px; /* Adjust the size as needed */
+                height: 50px; /* Ensures it's a square */
+                border-radius: 50%; /* Makes the image rounded */
+                object-fit: cover; /* Ensures the image covers the container without distortion */
+                border: 2px solid blue; /* Optional: Add a border */
+                
+            }
+            </style>
           {% csrf_token %}
+           
 
           {% for field in form %}
           <div class="form__group">

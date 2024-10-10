@@ -9,6 +9,7 @@ from .forms import RoomForm, UserForm, MyUserCreationForm
 from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.contrib.auth.forms import SetPasswordForm
+from .utils import upload_image_to_backblaze
 
 # Create your views here.
 
@@ -270,6 +271,20 @@ def deleteMessage(request, pk):
     return render(request, 'base/delete.html', {'obj': message})
 
 
+# @login_required(login_url='login')
+# def updateUser(request):
+#     user = request.user
+#     form = UserForm(instance=user)
+
+#     if request.method == 'POST':
+#         form = UserForm(request.POST, request.FILES, instance=user)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('user-profile', pk=user.id)
+
+#     return render(request, 'base/update-user.html', {'form': form})
+
+
 @login_required(login_url='login')
 def updateUser(request):
     user = request.user
@@ -278,11 +293,17 @@ def updateUser(request):
     if request.method == 'POST':
         form = UserForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
-            form.save()
+            # Handle the avatar upload
+            avatar = form.cleaned_data.get('avatar')  # Get the uploaded avatar image from the form
+            # print(avatar)
+            if avatar:
+                avatar_url = upload_image_to_backblaze(avatar)  # Upload the image to Backblaze
+                user.avatar_url = avatar_url  # Save the returned avatar URL to the user model
+                # print(avatar_url)
+            form.save()  # Save the user profile with other form data
             return redirect('user-profile', pk=user.id)
 
     return render(request, 'base/update-user.html', {'form': form})
-
 
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
