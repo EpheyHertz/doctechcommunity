@@ -59,8 +59,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://doctechcommunity.onrender.com',
+    'https://doctechcommunity.up.railway.app',
+    'http://127.0.0.1',
+]
 ROOT_URLCONF = 'studybud.urls'
 
 TEMPLATES = [
