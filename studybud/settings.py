@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',        # Allow local accessvv
     'localhost',        # Allow localhost access
     'doctechcommunity.onrender.com',  # Allow your deployed domain
+    'doctechcommunity-production.up.railway.app',
 ]
 
 # Application definition
