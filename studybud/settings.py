@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    '127.0.0.1',        # Allow local access
+    '127.0.0.1',        # Allow local accessvv
     'localhost',        # Allow localhost access
     'doctechcommunity.onrender.com',  # Allow your deployed domain
 ]
@@ -88,21 +88,33 @@ WSGI_APPLICATION = 'studybud.wsgi.application'
 
 # load_dotenv()
 load_dotenv()
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE'),
-        'USER': os.getenv('MYSQL_USER'),
-        'PASSWORD': os.getenv('MYSQL_PASSWORD'),
-        'HOST': os.getenv('MYSQL_HOST'),
-        'PORT': os.getenv('MYSQL_PORT'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
-
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DATABASE'),        # Fetch from .env file
+        'USER': os.getenv('POSTGRES_USER'),            # Fetch from .env file
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),    # Fetch from .env file
+        'HOST': os.getenv('POSTGRES_HOST'),            # Fetch from .env file
+        'PORT': os.getenv('POSTGRES_PORT'), 
+        
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv('MYSQL_DATABASE'),
+#         'USER': os.getenv('MYSQL_USER'),
+#         'PASSWORD': os.getenv('MYSQL_PASSWORD'),
+#         'HOST': os.getenv('MYSQL_HOST'),
+#         'PORT': os.getenv('MYSQL_PORT'),
+#         'OPTIONS': {
+#             'charset': 'utf8mb4',
+#         },
+
+#     }
+# }
 
 
 

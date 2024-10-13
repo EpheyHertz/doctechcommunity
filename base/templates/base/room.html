@@ -48,13 +48,113 @@
           </a>
         </div>
         {% endif %}
-
       </div>
+
       <div class="room__box scroll">
         <div class="room__header scroll">
           <div class="room__info">
             <h3>{{room.name}}</h3>
             <span>{{room.created|timesince}} ago</span>
+            <style>
+              /* Follow/Unfollow button styles */
+              .follow-form {
+                display: inline-block;
+              }
+
+              .follow-btn {
+                padding: 10px 20px;
+                font-size: 16px;
+                font-weight: 500;
+                border: 2px solid transparent;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+              }
+
+              /* Follow button styles */
+              .follow {
+                background-color: #3498db; /* Blue background for follow */
+                color: #fff;
+                border-color: #3498db;
+              }
+
+              .follow:hover {
+                background-color: #2980b9; /* Darker blue on hover */
+                border-color: #2980b9;
+              }
+
+              /* Unfollow button styles */
+              .unfollow {
+                background-color: #e74c3c; /* Red background for unfollow */
+                color: #fff;
+                border-color: #e74c3c;
+              }
+
+              .unfollow:hover {
+                background-color: #c0392b; /* Darker red on hover */
+                border-color: #c0392b;
+              }
+
+              .like-dislike {
+                display: flex;
+                gap: 20px;
+            }
+            
+            .like-dislike form {
+                display: inline;
+            }
+            
+            button {
+                background: none;
+                border: none;
+                font-size: 16px;
+                color: #666; /* Default color */
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            button:hover {
+                color: #3498db; /* Hover effect */
+            }
+            
+            button i {
+                font-size: 20px;
+                transition: color 0.3s ease;
+            }
+            
+            /* If liked, make the thumbs-up icon blue */
+            .liked {
+                color: #3498db;
+            }
+            
+            /* If disliked, make the thumbs-down icon red */
+            .disliked {
+                color: #e74c3c;
+            }
+            
+            </style>
+            <div class="like-dislike">
+              
+              <!-- Like Button -->
+              <form action="{% url 'like-room' room.id %}" method="POST" class="like-form">
+                  {% csrf_token %}
+                  <button type="submit" class="like-btn">
+                      <i class="fa fa-thumbs-up {% if request.user in room.likes.all %}liked{% endif %}"></i>
+                      ({{ room.likes.count }})
+                  </button>
+              </form>
+          
+              <!-- Dislike Button -->
+              <form action="{% url 'dislike-room' room.id %}" method="POST" class="dislike-form">
+                  {% csrf_token %}
+                  <button type="submit" class="dislike-btn">
+                      <i class="fa fa-thumbs-down {% if request.user in room.dislikes.all %}disliked{% endif %}"></i>
+                      ({{ room.dislikes.count }})
+                  </button>
+              </form>
+          </div>
           </div>
           <div class="room__hosted">
             <p>Asked By</p>
@@ -63,20 +163,29 @@
                 <img src="{{room.host.avatar_url}}" />
               </div>
               <span>@{{room.host.username}}</span>
+              
             </a>
+            <span>Followers: {{room.host.followers.count}}</span>
+            {% if request.user.is_authenticated %}
+            {% if request.user != room.host %}
+            <form method="POST" action="{% url 'follow-user' room.host.id %}" class="follow-form">
+                {% csrf_token %}
+                <button type="submit" class="follow-btn {% if request.user in room.host.followers.all %}unfollow{% else %}follow{% endif %}">
+                    {% if request.user in room.host.followers.all %}
+                        Unfollow
+                    {% else %}
+                        Follow
+                    {% endif %}
+                </button>
+            </form>
+            {% endif %}
+        {% endif %}
           </div>
-          <!-- <div class="room__details">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quasi, tenetur laudantium? Dicta repellendus
-            rerum consectetur, voluptatem repudiandae eum ea porro cupiditate provident nulla, deserunt, ab ipsum
-            corporis laboriosam deleniti molestias?
-          </div> -->
           <span class="room__topics">{{room.topic}}</span>
         </div>
 
         <div class="room__conversation">
           <div class="threads scroll">
-
-
             {% for message in room_messages %}
             <div class="thread">
               <div class="thread__top">
@@ -106,12 +215,73 @@
               <div class="thread__details">
                 {{message.body}}
               </div>
+              <div class="like-dislike">
+                <style>
+                  .like-dislike {
+                    display: flex;
+                    gap: 20px;
+                }
+                
+                .like-dislike form {
+                    display: inline;
+                }
+                
+                button {
+                    background: none;
+                    border: none;
+                    font-size: 16px;
+                    color: #666; /* Default color */
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                
+                button:hover {
+                    color: #3498db; /* Hover effect */
+                }
+                
+                button i {
+                    font-size: 20px;
+                    transition: color 0.3s ease;
+                }
+                
+                /* If liked, make the thumbs-up icon blue */
+                .liked {
+                    color: #3498db;
+                }
+                
+                /* If disliked, make the thumbs-down icon red */
+                .disliked {
+                    color: #e74c3c;
+                }
+                
+                </style>
+                <!-- Like Button -->
+                <form action="{% url 'like-message' message.id %}" method="POST" class="like-form">
+                    {% csrf_token %}
+                    <button type="submit" class="like-btn">
+                        <i class="fa fa-thumbs-up {% if request.user in message.likes.all %}liked{% endif %}"></i>
+                        ({{ message.likes.count }})
+                    </button>
+                </form>
+            
+                <!-- Dislike Button -->
+                <form action="{% url 'dislike-message' message.id %}" method="POST" class="dislike-form">
+                    {% csrf_token %}
+                    <button type="submit" class="dislike-btn">
+                        <i class="fa fa-thumbs-down {% if request.user in message.dislikes.all %}disliked{% endif %}"></i>
+                        ({{ message.dislikes.count }})
+                    </button>
+                </form>
+            </div>
+            
             </div>
             {% endfor %}
           </div>
         </div>
-
       </div>
+
       <div class="room__message">
         <form action="" method="POST">
           {% csrf_token %}
@@ -121,7 +291,7 @@
     </div>
     <!-- Room End -->
 
-    <!--   Start -->
+    <!-- Participants Section Start -->
     <div class="participants">
       <h3 class="participants__top">Answers <span>({{participants.count}} Joined)</span></h3>
       <div class="participants__list scroll">
@@ -135,11 +305,25 @@
             <span>@{{user.username}}</span>
           </p>
         </a>
+        {% if request.user.is_authenticated %}
+            {% if request.user != user %}
+            <form method="POST" action="{% url 'follow-user' user.id %}" class="follow-form">
+                {% csrf_token %}
+                <button type="submit" class="follow-btn {% if request.user in user.followers.all %}unfollow{% else %}follow{% endif %}">
+                    {% if request.user in user.followers.all %}
+                        Unfollow
+                    {% else %}
+                        Follow
+                    {% endif %}
+                </button>
+            </form>
+            {% endif %}
+        {% endif %}
         {% endfor %}
       </div>
     </div>
-    <!--  End -->
+    <!-- Participants Section End -->
   </div>
 </main>
-<script src="script.js"></script>
+
 {% endblock content %}

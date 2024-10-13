@@ -24,6 +24,7 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractUser):
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers', blank=True)
     name = models.CharField(max_length=200, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True)
@@ -58,10 +59,25 @@ class Room(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)
-    participants = models.ManyToManyField(
-        User, related_name='participants', blank=True)
+    participants = models.ManyToManyField(User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='liked_rooms', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='disliked_rooms', blank=True)
+
+    def like_room(self, user):
+        """Like a room. If disliked, remove the dislike."""
+        if user in self.dislikes.all():
+            self.dislikes.remove(user)
+        if user not in self.likes.all():
+            self.likes.add(user)
+
+    def dislike_room(self, user):
+        """Dislike a room. If liked, remove the like."""
+        if user in self.likes.all():
+            self.likes.remove(user)
+        if user not in self.dislikes.all():
+            self.dislikes.add(user)
 
     class Meta:
         ordering = ['-updated', '-created']
@@ -76,6 +92,22 @@ class Message(models.Model):
     body = models.TextField()
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='liked_messages', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='disliked_messages', blank=True)
+
+    def like_message(self, user):
+        """Like a message. If disliked, remove the dislike."""
+        if user in self.dislikes.all():
+            self.dislikes.remove(user)
+        if user not in self.likes.all():
+            self.likes.add(user)
+
+    def dislike_message(self, user):
+        """Dislike a message. If liked, remove the like."""
+        if user in self.likes.all():
+            self.likes.remove(user)
+        if user not in self.dislikes.all():
+            self.dislikes.add(user)
 
     class Meta:
         ordering = ['-updated', '-created']

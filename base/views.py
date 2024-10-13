@@ -22,27 +22,64 @@ from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail,EmailMultiAlternatives
 from django.conf import settings
+from django.urls import reverse_lazy
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator as account_activation_token
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail import EmailMessage
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.db.models.query_utils import Q
 
-class CustomPasswordResetView(auth_views.PasswordResetView):
-    template_name = 'registration/password_reset.html'
-    email_template_name = 'registration/password_reset_email.html'
-    subject_template_name = 'registration/password_reset_subject.txt'
-    success_url = '/password-reset/done/'
-    
 
-# Custom password reset confirm view
-class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-    template_name = 'registration/password_reset_confirm.html'
-    success_url = '/password-reset/complete/'
-    form_class=SetPasswordForm
 
-# Custom password reset done view
-class CustomPasswordResetDoneView(auth_views.PasswordResetDoneView):
-    template_name = 'registration/password_reset_done.html'
 
-# Custom password reset complete view
-class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
-    template_name = 'registration/password_reset_complete.html'
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
+@login_required
+def follow_user(request, user_id):
+    target_user = get_object_or_404(User, id=user_id)
+    if target_user != request.user:
+        if request.user in target_user.followers.all():
+            target_user.followers.remove(request.user)
+        else:
+            target_user.followers.add(request.user)
+    return redirect(reverse('user-profile', args=[user_id]))
+
+
+@login_required
+def like_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    room.like_room(request.user)
+    return redirect(reverse('room', args=[room_id]))
+
+
+@login_required
+def dislike_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    room.dislike_room(request.user)
+    return redirect(reverse('room', args=[room_id]))
+
+@login_required
+def like_message(request, message_id):
+    message = get_object_or_404(Message, id=message_id)
+    message.like_message(request.user)
+    return redirect(reverse('room', args=[message.room.id]))
+
+
+@login_required
+def dislike_message(request, message_id):
+    message = get_object_or_404(Message, id=message_id)
+    message.dislike_message(request.user)
+    return redirect(reverse('room', args=[message.room.id]))
+
+
+
+
 def registerPage(request):
     form = MyUserCreationForm()
 
@@ -271,18 +308,6 @@ def deleteMessage(request, pk):
     return render(request, 'base/delete.html', {'obj': message})
 
 
-# @login_required(login_url='login')
-# def updateUser(request):
-#     user = request.user
-#     form = UserForm(instance=user)
-
-#     if request.method == 'POST':
-#         form = UserForm(request.POST, request.FILES, instance=user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('user-profile', pk=user.id)
-
-#     return render(request, 'base/update-user.html', {'form': form})
 
 
 @login_required(login_url='login')
