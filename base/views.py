@@ -138,8 +138,8 @@ def registerPage(request):
                     return redirect('login')
 
                 except Exception as e:
-                    import traceback
-                    traceback.print_exc()  # Log the error
+                    # import traceback
+                    # traceback.print_exc()  # Log the error
                     messages.error(request, 'Email could not be sent. Please try again later.')
             else:
                 print(form.errors)  # Debug form errors
