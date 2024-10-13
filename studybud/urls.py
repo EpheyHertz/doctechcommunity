@@ -9,5 +9,7 @@ urlpatterns = [
     path('', include('base.urls')),
     path('api/', include('base.api.urls'))
 ]
+handler404 = 'base.views.handler404'
+handler500 = 'base.views.handler500'
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

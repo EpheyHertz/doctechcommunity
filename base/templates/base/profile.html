@@ -20,46 +20,6 @@
           <p>@{{user.username}}</p>
           <p>Followers: {{user.followers.count}}</p>
           <div>
-            <style>
-               /* Follow/Unfollow button styles */
-               .follow-form {
-                display: inline-block;
-              }
-
-              .follow-btn {
-                padding: 10px 20px;
-                font-size: 16px;
-                font-weight: 500;
-                border: 2px solid transparent;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: all 0.3s ease;
-              }
-
-              /* Follow button styles */
-              .follow {
-                background-color: #3498db; /* Blue background for follow */
-                color: #fff;
-                border-color: #3498db;
-              }
-
-              .follow:hover {
-                background-color: #2980b9; /* Darker blue on hover */
-                border-color: #2980b9;
-              }
-
-              /* Unfollow button styles */
-              .unfollow {
-                background-color: #e74c3c; /* Red background for unfollow */
-                color: #fff;
-                border-color: #e74c3c;
-              }
-
-              .unfollow:hover {
-                background-color: #c0392b; /* Darker red on hover */
-                border-color: #c0392b;
-              }
-            </style>
             {% if request.user.is_authenticated %}
             {% if request.user != user %}
             <form method="POST" action="{% url 'follow-user' user.id %}" class="follow-form">
@@ -90,7 +50,7 @@
 
       <div class="roomList__header">
         <div>
-          <h2>Hosted By DocTech Admins</a>
+          <h2>Hosted By DocTech Admins
           </h2>
         </div>
       </div>

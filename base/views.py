@@ -77,8 +77,13 @@ def dislike_message(request, message_id):
     message.dislike_message(request.user)
     return redirect(reverse('room', args=[message.room.id]))
 
+def handler404(request, exception, template_name="404.html"):
+    response = render(request, template_name, status=404)
+    return response
 
-
+def handler500(request, template_name="500.html"):
+    response = render(request, template_name, status=500)
+    return response
 
 def registerPage(request):
     form = MyUserCreationForm()
