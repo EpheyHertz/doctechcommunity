@@ -87,7 +87,7 @@ def follow_user(request, user_id):
         else:
             target_user.followers.add(request.user)
             # Send follow notification email
-            send_follow_email(request.user, target_user)
+            send_follow_email(request,request.user, target_user)
     return redirect(reverse('user-profile', args=[user_id]))
 
 
