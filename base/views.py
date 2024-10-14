@@ -20,7 +20,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail,EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
@@ -40,6 +40,44 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
+# @login_required
+# def follow_user(request, user_id):
+#     target_user = get_object_or_404(User, id=user_id)
+#     if target_user != request.user:
+#         if request.user in target_user.followers.all():
+#             target_user.followers.remove(request.user)
+#         else:
+#             target_user.followers.add(request.user)
+#     return redirect(reverse('user-profile', args=[user_id]))
+
+
+# @login_required
+# def like_room(request, room_id):
+#     room = get_object_or_404(Room, id=room_id)
+#     room.like_room(request.user)
+#     return redirect(reverse('room', args=[room_id]))
+
+
+# @login_required
+# def dislike_room(request, room_id):
+#     room = get_object_or_404(Room, id=room_id)
+#     room.dislike_room(request.user)
+#     return redirect(reverse('room', args=[room_id]))
+
+# @login_required
+# def like_message(request, message_id):
+#     message = get_object_or_404(Message, id=message_id)
+#     message.like_message(request.user)
+#     return redirect(reverse('room', args=[message.room.id]))
+
+
+# @login_required
+# def dislike_message(request, message_id):
+#     message = get_object_or_404(Message, id=message_id)
+#     message.dislike_message(request.user)
+#     return redirect(reverse('room', args=[message.room.id]))
+
+
 @login_required
 def follow_user(request, user_id):
     target_user = get_object_or_404(User, id=user_id)
@@ -48,6 +86,8 @@ def follow_user(request, user_id):
             target_user.followers.remove(request.user)
         else:
             target_user.followers.add(request.user)
+            # Send follow notification email
+            send_follow_email(request.user, target_user)
     return redirect(reverse('user-profile', args=[user_id]))
 
 
@@ -55,6 +95,8 @@ def follow_user(request, user_id):
 def like_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
     room.like_room(request.user)
+    # Send like notification email
+    send_like_email(request, request.user, room.host, 'room')
     return redirect(reverse('room', args=[room_id]))
 
 
@@ -64,10 +106,13 @@ def dislike_room(request, room_id):
     room.dislike_room(request.user)
     return redirect(reverse('room', args=[room_id]))
 
+
 @login_required
 def like_message(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     message.like_message(request.user)
+    # Send like notification email
+    send_like_email(request,request.user, message.user, 'message')
     return redirect(reverse('room', args=[message.room.id]))
 
 
@@ -76,6 +121,65 @@ def dislike_message(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     message.dislike_message(request.user)
     return redirect(reverse('room', args=[message.room.id]))
+
+
+def send_like_email(request,from_user, to_user, like_type):
+    subject = f"Your {like_type} received a like!"
+    current_site = get_current_site(request)
+    # Render HTML content
+    html_content = render_to_string('like_notification.html', {
+        'from_user': from_user.username,
+        'to_user': to_user.username,
+        'like_type': like_type,
+        'site_url':current_site.domain,
+        'site_name': 'DocTech Community'
+    })
+
+    # Prepare plain text version (if necessary, or just a simple message)
+    text_content = f"Hi {to_user.username}, your {like_type} received a like from {from_user.username} on DocTech Community!"
+
+    # Create EmailMultiAlternatives object
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,  # Plain text content
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[to_user.email]
+    )
+
+    # Attach HTML content
+    email.attach_alternative(html_content, "text/html")
+
+    # Send email
+    email.send()
+
+def send_follow_email(request,from_user, to_user):
+    subject = f"{from_user.username} is now following you!"
+    current_site = get_current_site(request)
+    # Render HTML content
+    html_content = render_to_string('follow_notification.html', {
+        'from_user': from_user.username,
+        'to_user': to_user.username,
+        'site_url':current_site.domain,
+        'site_name': 'Doctech Community'
+    })
+
+    # Prepare plain text version
+    text_content = f"Hi {to_user.username}, {from_user.username} is now following you on DocTech Community!"
+
+    # Create EmailMultiAlternatives object
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,  # Plain text content
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[to_user.email]
+    )
+
+    # Attach HTML content
+    email.attach_alternative(html_content, "text/html")
+
+    # Send email
+    email.send()
+
 
 def handler404(request, exception, template_name="404.html"):
     response = render(request, template_name, status=404)
@@ -142,10 +246,28 @@ def registerPage(request):
                     # traceback.print_exc()  # Log the error
                     messages.error(request, 'Email could not be sent. Please try again later.')
             else:
-                print(form.errors)  # Debug form errors
+                # print(form.errors)  # Debug form errors
                 messages.error(request, 'An error occurred during registration')
 
     return render(request, 'base/login_register.html', {'form': form})
+
+# def activate(request, uidb64, token):
+#     try:
+#         uid = force_str(urlsafe_base64_decode(uidb64))
+#         user = User.objects.get(pk=uid)
+#     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+#         user = None
+
+#     if user is not None and default_token_generator.check_token(user, token):
+#         user.is_active = True
+#         user.save()
+#         messages.success(request, 'Your account has been activated. You can now log in.')
+#         return render(request, 'base/activation_successful.html', {'user': user})
+#     else:
+#         messages.error(request, 'Activation link is invalid or expired!')
+#         return render(request, 'base/activation_failed.html')
+
+
 
 def activate(request, uidb64, token):
     try:
@@ -157,13 +279,36 @@ def activate(request, uidb64, token):
     if user is not None and default_token_generator.check_token(user, token):
         user.is_active = True
         user.save()
+
+        # Send activation success email
+        current_site = get_current_site(request)
+        mail_subject = 'Your DocTech Community account has been activated'
+        
+        # Prepare the context for email template
+        context = {
+            'user': user,
+            'domain': current_site.domain,
+            'login_url': f"http://{current_site.domain}/login",  # Link to login page
+        }
+
+        # Render the HTML version of the email
+        html_message = render_to_string('account_activated.html', context)
+
+        # Create an email with both plain text and HTML
+        email = EmailMultiAlternatives(
+            subject=mail_subject,
+            body='Your account has been successfully activated. You can now log in.',  # Plain text version
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[user.email],
+        )
+        email.attach_alternative(html_message, "text/html")  # Attach HTML version
+        email.send()
+
         messages.success(request, 'Your account has been activated. You can now log in.')
         return render(request, 'base/activation_successful.html', {'user': user})
     else:
         messages.error(request, 'Activation link is invalid or expired!')
         return render(request, 'base/activation_failed.html')
-
-
 
 def loginPage(request):
     page = 'login'
