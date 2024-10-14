@@ -1,52 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Account Activated</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Activated - DocTech Community</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333333;
         }
         .container {
             max-width: 600px;
-            background-color: white;
-            padding: 20px;
-            margin: 0 auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            padding: 30px;
+            margin: 40px auto;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
         h1 {
-            color: #333;
+            font-size: 24px;
+            color: #0044cc;
+            text-align: center;
         }
         p {
-            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555555;
+            margin-bottom: 20px;
+            text-align: center;
         }
         .button {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: #ffffff;
             text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
             border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #0056b3;
         }
         .footer {
-            margin-top: 20px;
+            text-align: center;
             font-size: 12px;
-            color: #999;
+            color: #999999;
+            margin-top: 30px;
+        }
+        .footer p {
+            margin-bottom: 10px;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            p {
+                font-size: 14px;
+            }
+            .button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome, {{ user.username }}!</h1>
-        <p>Your DocTech Community account has been successfully activated.</p>
-        <p>You can now log in and enjoy all the features of our community.</p>
+        <p>We’re excited to have you join the <strong>DocTech Community</strong>. Your account has been successfully activated, and you can now explore our community of experts and fellow tech enthusiasts.</p>
+        <p>Ready to get started? Click below to log in to your account.</p>
         <p>
             <a href="{{ login_url }}" class="button">Log in to Your Account</a>
         </p>
         <div class="footer">
-            <p>If you did not activate this account, please contact our support team immediately.</p>
+            <p>If you didn't activate this account, or if you have any questions, please contact our support team at <a href="mailto:support@doctechcommunity.com">support@doctechcommunity.com</a>.</p>
+            <p>&copy; 2024 DocTech Community. All rights reserved.</p>
         </div>
     </div>
 </body>
