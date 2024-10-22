@@ -53,7 +53,7 @@
 <body>
     <div class="email-container">
         <h1>Activate Your DocTech Community Account</h1>
-        <p>Hi {{ user.username }},</p>
+        <p>Hi {{ user.username|capitalize }},</p>
         <p>Thank you for registering at DocTech. To complete your registration and activate your account, please click the button below:</p>
         <p>
             <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}" class="button">Activate your account</a>

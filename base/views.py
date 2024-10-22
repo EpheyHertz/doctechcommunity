@@ -40,42 +40,6 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
-# @login_required
-# def follow_user(request, user_id):
-#     target_user = get_object_or_404(User, id=user_id)
-#     if target_user != request.user:
-#         if request.user in target_user.followers.all():
-#             target_user.followers.remove(request.user)
-#         else:
-#             target_user.followers.add(request.user)
-#     return redirect(reverse('user-profile', args=[user_id]))
-
-
-# @login_required
-# def like_room(request, room_id):
-#     room = get_object_or_404(Room, id=room_id)
-#     room.like_room(request.user)
-#     return redirect(reverse('room', args=[room_id]))
-
-
-# @login_required
-# def dislike_room(request, room_id):
-#     room = get_object_or_404(Room, id=room_id)
-#     room.dislike_room(request.user)
-#     return redirect(reverse('room', args=[room_id]))
-
-# @login_required
-# def like_message(request, message_id):
-#     message = get_object_or_404(Message, id=message_id)
-#     message.like_message(request.user)
-#     return redirect(reverse('room', args=[message.room.id]))
-
-
-# @login_required
-# def dislike_message(request, message_id):
-#     message = get_object_or_404(Message, id=message_id)
-#     message.dislike_message(request.user)
-#     return redirect(reverse('room', args=[message.room.id]))
 
 
 @login_required
@@ -94,42 +58,77 @@ def follow_user(request, user_id):
 @login_required
 def like_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
-    room.like_room(request.user)
-    # Send like notification email
-    send_like_email(request, request.user, room.host, 'room')
-    return redirect(reverse('room', args=[room_id]))
+    
+    # Check if the user has already liked the room
+    if request.user in room.likes.all():
+        # If already liked, remove the like
+        room.likes.remove(request.user)
+    else:
+        # Otherwise, add the like and remove from dislikes if needed
+        room.likes.add(request.user)
+        room.dislikes.remove(request.user)
+        
+        # Send like notification email
+        send_like_email(request, request.user, room.host, 'room', room.id)
 
+    return redirect(reverse('room', args=[room_id]))
 
 @login_required
 def dislike_room(request, room_id):
     room = get_object_or_404(Room, id=room_id)
-    room.dislike_room(request.user)
-    return redirect(reverse('room', args=[room_id]))
+    
+    # Check if the user has already disliked the room
+    if request.user in room.dislikes.all():
+        # If already disliked, remove the dislike
+        room.dislikes.remove(request.user)
+    else:
+        # Otherwise, add the dislike and remove from likes if needed
+        room.dislikes.add(request.user)
+        room.likes.remove(request.user)
 
+    return redirect(reverse('room', args=[room_id]))
 
 @login_required
 def like_message(request, message_id):
     message = get_object_or_404(Message, id=message_id)
-    message.like_message(request.user)
-    # Send like notification email
-    send_like_email(request,request.user, message.user, 'message')
-    return redirect(reverse('room', args=[message.room.id]))
+    
+    # Check if the user has already liked the message
+    if request.user in message.likes.all():
+        # If already liked, remove the like
+        message.likes.remove(request.user)
+    else:
+        # Otherwise, add the like and remove from dislikes if needed
+        message.likes.add(request.user)
+        message.dislikes.remove(request.user)
+        
+        # Send like notification email
+        send_like_email(request, request.user, message.user, 'message', message.room.id)
 
+    return redirect(reverse('room', args=[message.room.id]))
 
 @login_required
 def dislike_message(request, message_id):
     message = get_object_or_404(Message, id=message_id)
-    message.dislike_message(request.user)
+    
+    # Check if the user has already disliked the message
+    if request.user in message.dislikes.all():
+        # If already disliked, remove the dislike
+        message.dislikes.remove(request.user)
+    else:
+        # Otherwise, add the dislike and remove from likes if needed
+        message.dislikes.add(request.user)
+        message.likes.remove(request.user)
+
     return redirect(reverse('room', args=[message.room.id]))
 
-
-def send_like_email(request,from_user, to_user, like_type):
+def send_like_email(request,from_user, to_user, like_type,like_id):
     subject = f"Your {like_type} received a like!"
     current_site = get_current_site(request)
     # Render HTML content
     html_content = render_to_string('like_notification.html', {
         'from_user': from_user.username,
         'to_user': to_user.username,
+        'like_id':like_id,
         'like_type': like_type,
         'site_url':current_site.domain,
         'site_name': 'DocTech Community'
@@ -159,6 +158,7 @@ def send_follow_email(request,from_user, to_user):
     html_content = render_to_string('follow_notification.html', {
         'from_user': from_user.username,
         'to_user': to_user.username,
+        'user_id':to_user.id,
         'site_url':current_site.domain,
         'site_name': 'Doctech Community'
     })

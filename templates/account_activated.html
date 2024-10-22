@@ -77,14 +77,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, {{ user.username }}!</h1>
+        <h1>Welcome, {{ user.username|capitalize }}!</h1>
         <p>We’re excited to have you join the <strong>DocTech Community</strong>. Your account has been successfully activated, and you can now explore our community of experts and fellow tech enthusiasts.</p>
         <p>Ready to get started? Click below to log in to your account.</p>
         <p>
             <a href="{{ login_url }}" class="button">Log in to Your Account</a>
         </p>
         <div class="footer">
-            <p>If you didn't activate this account, or if you have any questions, please contact our support team at <a href="mailto:support@doctechcommunity.com">support@doctechcommunity.com</a>.</p>
+            <p>If you didn't activate this account, or if you have any questions, please contact our support team at <a href="mailto:epheynyaga@gmail.com">support@doctechcommunity.com</a>.</p>
             <p>&copy; 2024 DocTech Community. All rights reserved.</p>
         </div>
     </div>

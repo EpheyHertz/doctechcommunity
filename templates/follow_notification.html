@@ -6,80 +6,115 @@
     <title>Follow Notification</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f7;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f9f9fb;
             color: #333;
             margin: 0;
             padding: 20px;
+            line-height: 1.6;
         }
 
         .email-container {
             background-color: #ffffff;
             max-width: 600px;
             margin: 0 auto;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
         }
 
         .header {
-            background-color: #28a745;
+            background-color: #1a73e8;
             color: #ffffff;
-            padding: 20px;
+            padding: 30px 20px;
             text-align: center;
+            border-bottom: 4px solid #0c47a1;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .content {
-            padding: 30px;
+            padding: 40px;
         }
 
         h2 {
-            color: #28a745;
-            font-size: 24px;
+            color: #1a73e8;
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 0;
         }
 
         p {
             font-size: 16px;
-            line-height: 1.5;
+            margin: 15px 0;
         }
 
         .cta {
             display: inline-block;
-            margin-top: 20px;
-            padding: 12px 20px;
-            background-color: #28a745;
+            margin-top: 25px;
+            padding: 12px 30px;
+            background-color: #1a73e8;
             color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta:hover {
+            background-color: #0c47a1;
         }
 
         .footer {
             padding: 20px;
             text-align: center;
-            font-size: 12px;
-            color: #999;
-            background-color: #f4f4f7;
+            font-size: 13px;
+            color: #888;
+            background-color: #f9f9fb;
+            border-top: 1px solid #e0e0e0;
         }
 
-        a {
-            color: #28a745;
+        .footer a {
+            color: #1a73e8;
             text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media screen and (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+
+            .cta {
+                padding: 10px 20px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>Follow Notification</h1>
+            <h1>New Follower Alert</h1>
         </div>
         <div class="content">
-            <h2>Hello {{ to_user }}!</h2>
-            <p><strong>{{ from_user }}</strong> has started following you!</p>
-            <p>Visit your <a href="http://{{ site_url }}{% url 'home' %}" class="cta">Profile</a> to see more and manage your followers!</p>
+            <h2>Hello, {{ to_user|capitalize }}!</h2>
+            <p><strong>{{ from_user|capitalize }}</strong> has just started following you.</p>
+            <p>Visit your <a href="http://{{ site_url }}/profile/{{ user_id }}" class="cta">Profile</a> to view their profile and manage your followers.</p>
         </div>
         <div class="footer">
             <p>&copy; {{ site_name }} | All rights reserved.</p>
-            <p><a href="http://{{ site_url }}{% url 'home' %}">Visit our site</a></p>
+            <p><a href="http://{{ site_url }}{% url 'home' %}">Visit our website</a></p>
         </div>
     </div>
 </body>
